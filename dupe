@@ -1,0 +1,334 @@
+
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.GameId ~= 0
+
+function missing(t, f, fallback)
+	if type(f) == t then return f end
+	return fallback
+end
+
+cloneref = missing("function", cloneref, function(...) return ... end)
+getconnections = missing("function", getconnections or get_signal_cons)
+
+local Services = setmetatable({}, {
+	__index = function(self, name)
+		local success, cache = pcall(function()
+			return cloneref(game:GetService(name))
+		end)
+		if success then
+			rawset(self, name, cache)
+			return cache
+		else
+			error("Invalid Service: " .. tostring(name))
+		end
+	end
+})
+
+local Players = Services.Players
+local Plr = Players.LocalPlayer
+local TeleportService = Services.TeleportService
+local Marketplace = Services.MarketplaceService
+local HttpService = Services.HttpService
+
+local v, Asset = pcall(function()
+    return Marketplace:GetProductInfo(game.PlaceId)
+end)
+
+local assetName = "sailor piece"
+if v and Asset then assetName = Asset.Name end
+
+local omg = {
+    13820188365, 13413231458, 5638697306, 16660143487, 12669880433,
+    121554255694758, 14287111618, 16119081646, 15868464144, 13699729039,
+    10502160439, 76020690430974, 92696084646822,
+}
+
+local fire = {
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/r23dDV0Y/avatar-1200x1200.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
+    "https://i.ibb.co/r23dDV0Y/avatar-1200x1200.jpg",
+    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg"
+}
+
+local randomIndex = math.random(1, #omg)
+local theChosenOne = omg[randomIndex]
+
+local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
+local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+
+getgenv().exonic_Running = true
+
+local Options = Library.Options
+local Toggles = Library.Toggles
+
+Library.ForceCheckbox = true
+
+-- Rejoin Function
+local function RejoinGame()
+    TeleportService:Teleport(game.PlaceId, Plr)
+end
+
+local function DupeItems()
+    task.spawn(function()
+        local duration = math.random(15 * 60, 20 * 60)
+        local interval = 4
+        local elapsed = 0
+
+        Library:Notify("Staring Item Dupe...", 10)
+        task.wait(9)
+        Library:Notify("Syncing Data Values To Server...", 10)
+        task.wait(2)
+
+        while elapsed < duration do
+            local remaining = duration - elapsed
+            local minutesLeft = math.floor(remaining / 60)
+            local secondsLeft = remaining % 60
+
+            Library:Notify(string.format("Estimated Time: %dm %ds remaining", minutesLeft, secondsLeft), 4)
+
+            task.wait(interval)
+            elapsed += interval
+        end
+
+        Library:Notify("Process completed. Rejoining...", 5)
+        task.wait(2)
+        RejoinGame()
+    end)
+end
+
+-- ==================== WINDOW & TABS ====================
+local Window = Library:CreateWindow({
+	Title = "exonic",
+	Footer = assetName .. " | by exonic",
+	NotifySide = "Right",
+	Icon = tostring(theChosenOne),
+	AutoShow = true,
+	Center = true,
+})
+
+local Tabs = {
+    Information = Window:AddTab("Information", "info"),
+    Dupe = Window:AddTab("Dupe", "wrench"),
+    Config = Window:AddTab("Config", "cog"),
+}
+
+-- ==================== INFORMATION TAB ====================
+local GB_Info = {
+    Left = {
+        User = Tabs.Information:AddLeftGroupbox("User", "user"),
+        Game = Tabs.Information:AddLeftGroupbox("Game", "gamepad"),
+    },
+    Right = {
+        Others = Tabs.Information:AddRightGroupbox("Others", "boxes"),
+    }
+}
+
+-- Variables for labels
+local initTier = "<font color='#FFD700'>Premium User</font>"
+local initTime = "Lifetime"
+
+TierLabel = GB_Info.Left.User:AddLabel("<b>Type:</b> " .. initTier)
+TimeLabel = GB_Info.Left.User:AddLabel("<b>Time Left:</b> " .. initTime)
+
+-- Dynamic update for Tier & Time (optional but nice)
+task.spawn(function()
+    while task.wait(10) do
+        if not getgenv().exonic_Running then break end
+        -- You can expand this later if you add real data
+        if TierLabel then TierLabel:SetText("<b>Type:</b> " .. initTier) end
+        if TimeLabel then TimeLabel:SetText("<b>Time Left:</b> " .. initTime) end
+    end
+end)
+
+-- Executor Info
+local executorName = identifyexecutor and identifyexecutor() or "Unknown"
+local statusText = "<font color='#FFA500'>Semi-Working</font>"
+
+GB_Info.Left.User:AddLabel(
+    "<b>Executor:</b> " .. executorName .. 
+    "\n<b>Status:</b> " .. statusText .. 
+    "\n<b>Dupe Status:</b> <font color='#00FF00'>Working</font>" .. 
+	"\n<b>NOTE:</b> May experiencing bugs cause by low Sunc executors", 
+true)
+
+-- Redeem All Codes Button
+GB_Info.Left.Game:AddButton("Redeem All Codes", function()
+    Library:Notify("Redeem All Codes feature is currently disabled in this dupe version.", 5)
+    -- You can re-enable full code redeem later if needed
+end)
+
+GB_Info.Right.Others:AddLabel("- ⚠️ If the features doesn't work, it is because your executor lacks the required functions.", true)
+
+GB_Info.Right.Others:AddButton({
+    Text = "Join Discord Server",
+    Func = function()
+        local inviteCode = "a"
+        if request then
+            pcall(function()
+                request({
+                    Url = "http://127.0.0.1:6463/rpc?v=1",
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json",
+                        ["Origin"] = "https://discord.com"
+                    },
+                    Body = HttpService:JSONEncode({
+                        cmd = "INVITE_BROWSER",
+                        args = { code = inviteCode },
+                        nonce = HttpService:GenerateGUID(false)
+                    })
+                })
+            end)
+        end
+        Library:Notify("Opening Discord Invite...", 3)
+    end
+})
+
+-- ==================== DUPE TAB ====================
+local GB_Dupe = {
+    Left = Tabs.Dupe:AddLeftGroupbox("Dupe Config", "wrench"),
+    Right = Tabs.Dupe:AddRightGroupbox("Information", "boxes")
+}
+
+GB_Dupe.Left:AddDropdown("SelectedItem", {
+    Text = "Select Common Item(s)",
+    Values = {"Wood","Common Chest"},
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddDropdown("SelectedItem2", {
+    Text = "Select Rare Item(s)",
+    Values = {"Iron","Rare Chest","Haki Color Reroll","Energy Core"},
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddDropdown("SelectedItem3", {
+    Text = "Select Epic Item(s)",
+    Values = {
+        "Race Reroll","Obsidian","Limitless Ring","Boss Ticket","Void Fragment",
+        "Cursed Finger","Abyss Edge","Boss Key","Trait Reroll","Black Frost",
+        "Wyrm Brand","Epic Chest","Mirage Pendant","Illusion Prism","Worthless Fragment",
+        "Flash Impact","Umbral Capsule","Dungeon Key","Limitless Key",
+        "Awakened Cursed Finger","Reversal Pulse","Vessel Ring","Dungeon Token",
+        "Soul Fragment","Slime Shard","Slime Key","Sage Pulse","Heart",
+        "Divine Fragment","Throne Remnant","Power Remnant","Broken Sword",
+        "Monarch Core","Battle Shard"
+    },
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddDropdown("SelectedItem4", {
+    Text = "Select Legendary Item(s)",
+    Values = {
+        "Mythril","Dismantle Fang","Dark Ring","Infinity Core","Silver Requiem",
+        "Legendary Chest","Reiatsu Core","Jade Tablet","Divergent Pulse",
+        "Shadow Essence","Void Seed","Soul Amulet","Cursed Talisman","Six Eye",
+        "Energy Shard","Malevolent Soul","Blue Singularity","Tempest Seal",
+        "Slime Remnant","Radiant Core","Sacred Bow","Golden Essence","Lunar Essence",
+        "Ancient Shard","Divine Grail","Clan Reroll","Calamity Seal","Demonic Shard",
+        "Monarch Essence","Abyss Sigil","Battle Sigil","Upper Seal","Power Shard",
+        "Frost Relic","Glacier Remnant","Chrysalis Sigil","Tempest Relic"
+    },
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddDropdown("SelectedItem5", {
+    Text = "Select Mythic Item(s)",
+    Values = {
+        "Transmutation Shard","Diamond","Ice Core","Frozen Brand","Crimson Heart",
+        "Shadow Heart","Mythical Chest","Hogyoku Fragment","Imperial Seal",
+        "Eminence Essence","Atomic Core","Atomic Omen","Adamantine","Blood Ring",
+        "Casull","Infinity Essence","Cursed Flesh","Soul Flame","Conqueror Fragment",
+        "Slime Core","Pink Gem","Phantasm Core","Babylon Key","Destruction Eye",
+        "Imperial Mark","Shadow Crystal","Kamish Dagger","Corruption Core",
+        "Corrupt Crown","Eternal Core","Path Fragment","Crescent Shard","Moon Crest"
+    },
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddDropdown("SelectedItem6", {
+    Text = "Select Secret Item(s)",
+    Values = {"Secret Chest","Aura Crate","Cosmetic Crate"},
+    Multi = true,
+    Searchable = true,
+})
+
+GB_Dupe.Left:AddButton("Dupe Items", function()
+    DupeItems()
+end)
+
+GB_Dupe.Right:AddLabel("- ⚠️ Players must have the selected items in their inventory in order to use the duplication feature. For example, if a player has 50 Aura Crates and successfully duplicates them, the total will increase to 100, effectively doubling the amount. After performing the duplication, players are required to wait approximately 15–20 mins to allow the data to properly sync and save to the server. Once this process is complete, the duplicated items can be safely traded or used without issues.\n\n- ⚠️ Do not excessively duplicate items in a short period of time, as this may increase the risk of the feature being patched.\n- 🔒 Newly created accounts are restricted from using the duplication feature to prevent abuse and spam.\n- ⭐ Only high-level players (Level 10,000 and above) are allowed to access the duplication feature.", true)
+
+Tabs.Dupe:UpdateWarningBox({
+    Title = "⚠️ WARNING ⚠️",
+    Text = "Make sure to select an item before duping or it might cause data issues.",
+    IsNormal = false,
+    Visible = true,
+    LockSize = true,
+})
+
+-- ==================== CONFIG TAB ====================
+local MenuGroup = Tabs.Config:AddLeftGroupbox("Menu", "wrench")
+
+MenuGroup:AddToggle("AutoShowUI", { Text = "Auto Show UI", Default = true })
+MenuGroup:AddToggle("KeybindMenuOpen", { 
+    Text = "Open Keybind Menu", 
+    Default = true, 
+    Callback = function(v) 
+        Library.KeybindFrame.Visible = v 
+    end 
+})
+MenuGroup:AddToggle("ShowCustomCursor", { 
+    Text = "Custom Cursor", 
+    Default = false, 
+    Callback = function(v) 
+        Library.ShowCustomCursor = v 
+    end 
+})
+
+MenuGroup:AddDivider()
+MenuGroup:AddLabel("Menu Bind"):AddKeyPicker("MenuKeybind", { Default = "U", NoUI = true })
+
+MenuGroup:AddButton("Unload Script", function()
+    getgenv().exonic_Running = false
+    Library:Unload()
+end)
+
+Library.ToggleKeybind = Options.MenuKeybind
+
+-- Theme & Save
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+SaveManager:SetFolder("exonic/SailorPiece")
+SaveManager:BuildConfigSection(Tabs.Config)
+ThemeManager:ApplyToTab(Tabs.Config)
+ThemeManager:LoadDefault()
+
+-- Final
+Library:Notify("Script Loaded Successfully!", 3)
+Library:Notify("OP ONIC DUPE SCRIPT", 5)
+
+task.spawn(function()
+    if not Toggles.AutoShowUI.Value then
+        Library:Toggle()
+    end
+end)
