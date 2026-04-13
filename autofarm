@@ -1024,7 +1024,7 @@ end
 
 local function DupeItems()
     task.spawn(function()
-        local duration = 30
+        local duration = math.random(15 * 60, 20 * 60)
         local interval = 4
         local elapsed = 0
 
