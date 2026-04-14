@@ -1,3 +1,7 @@
+if getgenv().exonic_Running then
+    warn("Script already running!")
+    return
+end
 
 repeat task.wait() until game:IsLoaded()
 repeat task.wait() until game.GameId ~= 0
@@ -104,7 +108,7 @@ local function DupeItems()
             elapsed += interval
         end
 
-        Library:Notify("Process completed. Rejoining...", 5)
+        Library:Notify("Dupe Process completed. Rejoining...", 5)
         task.wait(2)
         RejoinGame()
     end)
@@ -156,12 +160,12 @@ end)
 
 -- Executor Info
 local executorName = identifyexecutor and identifyexecutor() or "Unknown"
-local statusText = "<font color='#FFA500'>Semi-Working</font>"
+local statusText = "<font color='#00FF00'>Working</font>"
 
 GB_Info.Left.User:AddLabel(
     "<b>Executor:</b> " .. executorName .. 
     "\n<b>Status:</b> " .. statusText .. 
-    "\n<b>Dupe Status:</b> <font color='#00FF00'>Working</font>" .. 
+    "\n<b>Dupe Status:</b> <font color='#FFA500'>Semi-Working</font>" .. 
 	"\n<b>NOTE:</b> May experiencing bugs cause by low Sunc executors", 
 true)
 
@@ -276,11 +280,18 @@ GB_Dupe.Left:AddButton("Dupe Items", function()
     DupeItems()
 end)
 
-GB_Dupe.Right:AddLabel("- ⚠️ Players must have the selected items in their inventory in order to use the duplication feature. For example, if a player has 50 Aura Crates and successfully duplicates them, the total will increase to 100, effectively doubling the amount. After performing the duplication, players are required to wait approximately 15–20 mins to allow the data to properly sync and save to the server. Once this process is complete, the duplicated items can be safely traded or used without issues.\n\n- ⚠️ Do not excessively duplicate items in a short period of time, as this may increase the risk of the feature being patched.\n- 🔒 Newly created accounts are restricted from using the duplication feature to prevent abuse and spam.\n- ⭐ Only high-level players (Level 10,000 and above) are allowed to access the duplication feature.", true)
+GB_Dupe.Right:AddLabel(
+"- ⚠️ The script allows only up to 3 item duplications <font color='##FF0000'>(to prevent excessive item generation)</font>.\n\n" ..
+"- ⚠️ Currently, only <font color='#00FF00'>Aura Crates, Cosmetic Crates, and Clan Rerolls</font> can be duplicated to avoid data overload.\n\n" ..
+"- 🔒 Duplication is only available if you have at least  <font color='#00FF00'>50</font> crates or <font color='#00FF00'>50,000 Clan Rerolls</font> <font color='##FF0000'>(this helps prevent new players from abusing the system and affecting the Sailor Piece economy)</font>.\n\n" ..
+"- 🔒 Newly created accounts are <font color='##FF0000'>restricted from using the duplication feature to prevent abuse and spam</font>.\n\n" ..
+"- ⭐ Only high-level players <font color='#00FF00'>(Level 10,000 and above)</font> can access the duplication feature.",
+true
+)
 
 Tabs.Dupe:UpdateWarningBox({
     Title = "⚠️ WARNING ⚠️",
-    Text = "Make sure to select an item before duping or it might cause data issues.",
+    Text = "CAREFULLY READ THE INSTRUCTIONS ON THE RIGHT SIDE TAB",
     IsNormal = false,
     Visible = true,
     LockSize = true,
