@@ -281,7 +281,7 @@ GB_Dupe.Left:AddButton("Dupe Items", function()
 end)
 
 GB_Dupe.Right:AddLabel(
-"- ⚠️ The script allows only up to 3 item duplications <font color='##FF0000'>(to prevent excessive item generation)</font>.\n\n" ..
+"- ⚠️ The script <font color='#00FF00'>allows only up to 3 sessions of duplications</font> <font color='##FF0000'>(to prevent excessive item generation)</font>.\n\n" ..
 "- ⚠️ Currently, only <font color='#00FF00'>Aura Crates, Cosmetic Crates, and Clan Rerolls</font> can be duplicated to avoid data overload.\n\n" ..
 "- 🔒 Duplication is only available if you have at least  <font color='#00FF00'>50</font> crates or <font color='#00FF00'>50,000 Clan Rerolls</font> <font color='##FF0000'>(this helps prevent new players from abusing the system and affecting the Sailor Piece economy)</font>.\n\n" ..
 "- 🔒 Newly created accounts are <font color='##FF0000'>restricted from using the duplication feature to prevent abuse and spam</font>.\n\n" ..
