@@ -205,7 +205,7 @@ GB_Info.Right.Others:AddButton({
 -- ==================== DUPE TAB ====================
 local GB_Dupe = {
     Left = Tabs.Dupe:AddLeftGroupbox("Dupe Config", "wrench"),
-    Right = Tabs.Dupe:AddRightGroupbox("Information", "boxes")
+    Right = Tabs.Dupe:AddRightGroupbox("Instructions", "boxes")
 }
 
 GB_Dupe.Left:AddDropdown("SelectedItem", {
