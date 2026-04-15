@@ -347,6 +347,7 @@ GB_Dupe.Left:AddDropdown("SelectedItem4", {
         "Monarch Essence","Abyss Sigil","Battle Sigil","Upper Seal","Power Shard",
         "Frost Relic","Glacier Remnant","Chrysalis Sigil","Tempest Relic"
     },
+    Default = {"Clan Reroll"},
     Multi = true,
     Searchable = true,
 })
@@ -369,6 +370,7 @@ GB_Dupe.Left:AddDropdown("SelectedItem5", {
 GB_Dupe.Left:AddDropdown("SelectedItem6", {
     Text = "Select Secret Item(s)",
     Values = {"Secret Chest","Aura Crate","Cosmetic Crate"},
+    Default = {"Aura Crate", "Cosmetic Crate"}, 
     Multi = true,
     Searchable = true,
 })
@@ -440,4 +442,3 @@ task.spawn(function()
         Library:Toggle()
     end
 end)
-
