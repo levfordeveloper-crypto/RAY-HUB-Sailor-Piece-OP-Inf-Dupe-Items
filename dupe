@@ -86,13 +86,105 @@ local function RejoinGame()
     TeleportService:Teleport(game.PlaceId, Plr)
 end
 
+local function GetItemQuantity(item)
+    if not item then return 0 end
+
+    local quantityLabel = item:FindFirstChild("Slot")
+        and item.Slot:FindFirstChild("Holder")
+        and item.Slot.Holder:FindFirstChild("Quantity")
+
+    if not quantityLabel then return 0 end
+
+    local text = quantityLabel.Text or "0"
+    text = text:gsub("[^%d]", "") -- removes "x" and commas
+
+    return tonumber(text) or 0
+end
+
+local function CheckDupeItemsStrict()
+    local player = game:GetService("Players").LocalPlayer
+    if not player then return false end
+
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then return false end
+
+    local inventory = playerGui:FindFirstChild("InventoryPanelUI")
+    if not inventory then return false end
+
+    local storage = inventory:FindFirstChild("MainFrame")
+        and inventory.MainFrame:FindFirstChild("Frame")
+        and inventory.MainFrame.Frame:FindFirstChild("Content")
+        and inventory.MainFrame.Frame.Content:FindFirstChild("Holder")
+        and inventory.MainFrame.Frame.Content.Holder:FindFirstChild("StorageHolder")
+        and inventory.MainFrame.Frame.Content.Holder.StorageHolder:FindFirstChild("Storage")
+
+    if not storage then
+        Library:Notify("Inventory not loaded!", 5)
+        return false
+    end
+
+    local itemsToCheck = {
+        {id = "Item_Aura Crate", name = "Aura Crates", min = 50},
+        {id = "Item_Cosmetic Crate", name = "Cosmetic Crates", min = 50},
+        {id = "Item_Clan Reroll", name = "Clan Rerolls", min = 50000},
+    }
+
+    local allValid = true -- assume valid first
+
+    for _, data in ipairs(itemsToCheck) do
+        local item = storage:FindFirstChild(data.id)
+
+        if not item then
+            Library:Notify("❌ " .. data.name .. " is missing!", 6)
+            allValid = false
+        else
+            local qty = GetItemQuantity(item)
+
+            if qty < data.min then
+                Library:Notify(
+                    string.format("❌  %s: %d (Need %d)", data.name, qty, data.min),
+                    6
+                )
+                allValid = false
+            else
+                Library:Notify(
+                    string.format("✅ %s: %d (OK)", data.name, qty),
+                    6
+                )
+            end
+        end
+    end
+
+    if not allValid then
+        Library:Notify("Dupe cancelled (requirements not met)", 8)
+        return false
+    end
+
+    return true
+end
+
 local function DupeItems()
     task.spawn(function()
+
+        if isDuping then
+            Library:Notify("⚠️ Dupe is already in progress!", 5)
+            return
+        end
+
+        isDuping = true
+
+        local hasItems = CheckDupeItemsStrict()
+        if not hasItems then
+            Library:Notify("⚠️ Make sure to open inventory first and meet requirements", 10)
+            isDuping = false -- reset
+            return
+        end
+      
         local duration = math.random(15 * 60, 20 * 60)
         local interval = 4
         local elapsed = 0
 
-        Library:Notify("Staring Item Dupe...", 10)
+        Library:Notify("Starting Item Dupe...", 10)
         task.wait(9)
         Library:Notify("Syncing Data Values To Server...", 10)
         task.wait(2)
@@ -102,7 +194,10 @@ local function DupeItems()
             local minutesLeft = math.floor(remaining / 60)
             local secondsLeft = remaining % 60
 
-            Library:Notify(string.format("Estimated Time: %dm %ds remaining", minutesLeft, secondsLeft), 4)
+            Library:Notify(
+                string.format("Estimated Time: %dm %ds remaining", minutesLeft, secondsLeft),
+                4
+            )
 
             task.wait(interval)
             elapsed += interval
@@ -110,6 +205,8 @@ local function DupeItems()
 
         Library:Notify("Dupe Process completed. Rejoining...", 5)
         task.wait(2)
+
+        isDuping = false -- reset before rejoin (important)
         RejoinGame()
     end)
 end
@@ -343,3 +440,4 @@ task.spawn(function()
         Library:Toggle()
     end
 end)
+
