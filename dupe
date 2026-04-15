@@ -1,5 +1,3 @@
---updated by lev
-
 if getgenv().exonic_Running then
     warn("Script already running!")
     return
@@ -41,31 +39,15 @@ local v, Asset = pcall(function()
 end)
 
 local assetName = "sailor piece"
-if v and Asset then assetName = Asset.Name end
+if v and Asset then 
+    assetName = Asset.Name 
+end
 
+-- ==================== IMAGE DESIGN ====================
 local omg = {
     13820188365, 13413231458, 5638697306, 16660143487, 12669880433,
     121554255694758, 14287111618, 16119081646, 15868464144, 13699729039,
     10502160439, 76020690430974, 92696084646822,
-}
-
-local fire = {
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/r23dDV0Y/avatar-1200x1200.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg",
-    "https://i.ibb.co/r23dDV0Y/avatar-1200x1200.jpg",
-    "https://i.ibb.co/1GrxgL38/avatar-736x736.jpg"
 }
 
 local randomIndex = math.random(1, #omg)
@@ -80,7 +62,6 @@ getgenv().exonic_Running = true
 
 local Options = Library.Options
 local Toggles = Library.Toggles
-
 Library.ForceCheckbox = true
 
 -- Rejoin Function
@@ -88,100 +69,8 @@ local function RejoinGame()
     TeleportService:Teleport(game.PlaceId, Plr)
 end
 
-local function GetItemQuantity(item)
-    if not item then return 0 end
-
-    local quantityLabel = item:FindFirstChild("Slot")
-        and item.Slot:FindFirstChild("Holder")
-        and item.Slot.Holder:FindFirstChild("Quantity")
-
-    if not quantityLabel then return 0 end
-
-    local text = quantityLabel.Text or "0"
-    text = text:gsub("[^%d]", "") -- removes "x" and commas
-
-    return tonumber(text) or 0
-end
-
-local function CheckDupeItemsStrict()
-    local player = game:GetService("Players").LocalPlayer
-    if not player then return false end
-
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if not playerGui then return false end
-
-    local inventory = playerGui:FindFirstChild("InventoryPanelUI")
-    if not inventory then return false end
-
-    local storage = inventory:FindFirstChild("MainFrame")
-        and inventory.MainFrame:FindFirstChild("Frame")
-        and inventory.MainFrame.Frame:FindFirstChild("Content")
-        and inventory.MainFrame.Frame.Content:FindFirstChild("Holder")
-        and inventory.MainFrame.Frame.Content.Holder:FindFirstChild("StorageHolder")
-        and inventory.MainFrame.Frame.Content.Holder.StorageHolder:FindFirstChild("Storage")
-
-    if not storage then
-        Library:Notify("Inventory not loaded!", 5)
-        return false
-    end
-
-    local itemsToCheck = {
-        {id = "Item_Aura Crate", name = "Aura Crates", min = 50},
-        {id = "Item_Cosmetic Crate", name = "Cosmetic Crates", min = 50},
-        {id = "Item_Clan Reroll", name = "Clan Rerolls", min = 50000},
-    }
-
-    local allValid = true -- assume valid first
-
-    for _, data in ipairs(itemsToCheck) do
-        local item = storage:FindFirstChild(data.id)
-
-        if not item then
-            Library:Notify("❌ " .. data.name .. " is missing!", 6)
-            allValid = false
-        else
-            local qty = GetItemQuantity(item)
-
-            if qty < data.min then
-                Library:Notify(
-                    string.format("❌  %s: %d (Need %d)", data.name, qty, data.min),
-                    6
-                )
-                allValid = false
-            else
-                Library:Notify(
-                    string.format("✅ %s: %d (OK)", data.name, qty),
-                    6
-                )
-            end
-        end
-    end
-
-    if not allValid then
-        Library:Notify("Dupe cancelled (requirements not met)", 8)
-        return false
-    end
-
-    return true
-end
-
 local function DupeItems()
     task.spawn(function()
-
-        if isDuping then
-            Library:Notify("⚠️ Dupe is already in progress!", 5)
-            return
-        end
-
-        isDuping = true
-
-        local hasItems = CheckDupeItemsStrict()
-        if not hasItems then
-            Library:Notify("⚠️ Make sure to open inventory first and meet requirements", 10)
-            isDuping = false -- reset
-            return
-        end
-      
         local duration = math.random(15 * 60, 20 * 60)
         local interval = 4
         local elapsed = 0
@@ -196,10 +85,7 @@ local function DupeItems()
             local minutesLeft = math.floor(remaining / 60)
             local secondsLeft = remaining % 60
 
-            Library:Notify(
-                string.format("Estimated Time: %dm %ds remaining", minutesLeft, secondsLeft),
-                4
-            )
+            Library:Notify(string.format("Estimated Time: %dm %ds remaining", minutesLeft, secondsLeft), 4)
 
             task.wait(interval)
             elapsed += interval
@@ -207,8 +93,6 @@ local function DupeItems()
 
         Library:Notify("Dupe Process completed. Rejoining...", 5)
         task.wait(2)
-
-        isDuping = false -- reset before rejoin (important)
         RejoinGame()
     end)
 end
@@ -240,59 +124,49 @@ local GB_Info = {
     }
 }
 
--- Variables for labels
 local initTier = "<font color='#FFD700'>Premium User</font>"
 local initTime = "Lifetime"
 
 TierLabel = GB_Info.Left.User:AddLabel("<b>Type:</b> " .. initTier)
 TimeLabel = GB_Info.Left.User:AddLabel("<b>Time Left:</b> " .. initTime)
 
--- Dynamic update for Tier & Time (optional but nice)
 task.spawn(function()
     while task.wait(10) do
         if not getgenv().exonic_Running then break end
-        -- You can expand this later if you add real data
         if TierLabel then TierLabel:SetText("<b>Type:</b> " .. initTier) end
         if TimeLabel then TimeLabel:SetText("<b>Time Left:</b> " .. initTime) end
     end
 end)
 
--- Executor Info
 local executorName = identifyexecutor and identifyexecutor() or "Unknown"
 local statusText = "<font color='#00FF00'>Working</font>"
 
 GB_Info.Left.User:AddLabel(
-    "<b>Executor:</b> " .. executorName .. 
-    "\n<b>Status:</b> " .. statusText .. 
-    "\n<b>Dupe Status:</b> <font color='#FFA500'>Semi-Working</font>" .. 
-	"\n<b>NOTE:</b> May experiencing bugs cause by low Sunc executors", 
+    "<b>Executor:</b> " .. executorName ..
+    "\n<b>Status:</b> " .. statusText ..
+    "\n<b>Dupe Status:</b> <font color='#FFA500'>Semi-Working</font>" ..
+    "\n<b>NOTE:</b> May experience bugs on low sync executors",
 true)
 
--- Redeem All Codes Button
 GB_Info.Left.Game:AddButton("Redeem All Codes", function()
-    Library:Notify("Redeem All Codes feature is currently disabled in this dupe version.", 5)
-    -- You can re-enable full code redeem later if needed
+    Library:Notify("Redeem All Codes feature is currently disabled in this version.", 5)
 end)
 
-GB_Info.Right.Others:AddLabel("- ⚠️ If the features doesn't work, it is because your executor lacks the required functions.", true)
+GB_Info.Right.Others:AddLabel("- ⚠️ If some features don't work, it is because your executor lacks required functions.", true)
 
 GB_Info.Right.Others:AddButton({
     Text = "Join Discord Server",
     Func = function()
-        local inviteCode = "a"
+        local inviteCode = "qDccUkch9B"   -- Fixed
         if request then
             pcall(function()
                 request({
                     Url = "http://127.0.0.1:6463/rpc?v=1",
                     Method = "POST",
-                    Headers = {
-                        ["Content-Type"] = "application/json",
-                        ["Origin"] = "https://discord.com"
-                    },
+                    Headers = {["Content-Type"] = "application/json"},
                     Body = HttpService:JSONEncode({
                         cmd = "INVITE_BROWSER",
-                        args = { code = inviteCode },
-                        nonce = HttpService:GenerateGUID(false)
+                        args = { code = inviteCode }
                     })
                 })
             end)
@@ -307,92 +181,28 @@ local GB_Dupe = {
     Right = Tabs.Dupe:AddRightGroupbox("Instructions", "boxes")
 }
 
-GB_Dupe.Left:AddDropdown("SelectedItem", {
-    Text = "Select Common Item(s)",
-    Values = {"Wood","Common Chest"},
-    Multi = true,
-    Searchable = true,
-})
-
-GB_Dupe.Left:AddDropdown("SelectedItem2", {
-    Text = "Select Rare Item(s)",
-    Values = {"Iron","Rare Chest","Haki Color Reroll","Energy Core"},
-    Multi = true,
-    Searchable = true,
-})
-
-GB_Dupe.Left:AddDropdown("SelectedItem3", {
-    Text = "Select Epic Item(s)",
-    Values = {
-        "Race Reroll","Obsidian","Limitless Ring","Boss Ticket","Void Fragment",
-        "Cursed Finger","Abyss Edge","Boss Key","Trait Reroll","Black Frost",
-        "Wyrm Brand","Epic Chest","Mirage Pendant","Illusion Prism","Worthless Fragment",
-        "Flash Impact","Umbral Capsule","Dungeon Key","Limitless Key",
-        "Awakened Cursed Finger","Reversal Pulse","Vessel Ring","Dungeon Token",
-        "Soul Fragment","Slime Shard","Slime Key","Sage Pulse","Heart",
-        "Divine Fragment","Throne Remnant","Power Remnant","Broken Sword",
-        "Monarch Core","Battle Shard"
-    },
-    Multi = true,
-    Searchable = true,
-})
-
-GB_Dupe.Left:AddDropdown("SelectedItem4", {
-    Text = "Select Legendary Item(s)",
-    Values = {
-        "Mythril","Dismantle Fang","Dark Ring","Infinity Core","Silver Requiem",
-        "Legendary Chest","Reiatsu Core","Jade Tablet","Divergent Pulse",
-        "Shadow Essence","Void Seed","Soul Amulet","Cursed Talisman","Six Eye",
-        "Energy Shard","Malevolent Soul","Blue Singularity","Tempest Seal",
-        "Slime Remnant","Radiant Core","Sacred Bow","Golden Essence","Lunar Essence",
-        "Ancient Shard","Divine Grail","Clan Reroll","Calamity Seal","Demonic Shard",
-        "Monarch Essence","Abyss Sigil","Battle Sigil","Upper Seal","Power Shard",
-        "Frost Relic","Glacier Remnant","Chrysalis Sigil","Tempest Relic"
-    },
-    Default = {"Clan Reroll"},
-    Multi = true,
-    Searchable = true,
-})
-
-GB_Dupe.Left:AddDropdown("SelectedItem5", {
-    Text = "Select Mythic Item(s)",
-    Values = {
-        "Transmutation Shard","Diamond","Ice Core","Frozen Brand","Crimson Heart",
-        "Shadow Heart","Mythical Chest","Hogyoku Fragment","Imperial Seal",
-        "Eminence Essence","Atomic Core","Atomic Omen","Adamantine","Blood Ring",
-        "Casull","Infinity Essence","Cursed Flesh","Soul Flame","Conqueror Fragment",
-        "Slime Core","Pink Gem","Phantasm Core","Babylon Key","Destruction Eye",
-        "Imperial Mark","Shadow Crystal","Kamish Dagger","Corruption Core",
-        "Corrupt Crown","Eternal Core","Path Fragment","Crescent Shard","Moon Crest"
-    },
-    Multi = true,
-    Searchable = true,
-})
-
-GB_Dupe.Left:AddDropdown("SelectedItem6", {
-    Text = "Select Secret Item(s)",
-    Values = {"Secret Chest","Aura Crate","Cosmetic Crate"},
-    Default = {"Aura Crate", "Cosmetic Crate"}, 
-    Multi = true,
-    Searchable = true,
-})
+GB_Dupe.Left:AddDropdown("SelectedItem",  { Text = "Select Common Item(s)", Values = {"Wood","Common Chest"}, Multi = true, Searchable = true })
+GB_Dupe.Left:AddDropdown("SelectedItem2", { Text = "Select Rare Item(s)", Values = {"Iron","Rare Chest","Haki Color Reroll","Energy Core"}, Multi = true, Searchable = true })
+GB_Dupe.Left:AddDropdown("SelectedItem3", { Text = "Select Epic Item(s)", Values = {"Race Reroll","Obsidian","Boss Ticket","Epic Chest","Slime Key","Divine Grail","Broken Sword"}, Multi = true, Searchable = true })
+GB_Dupe.Left:AddDropdown("SelectedItem4", { Text = "Select Legendary Item(s)", Values = {"Mythril","Legendary Chest","Divine Grail"}, Multi = true, Searchable = true })
+GB_Dupe.Left:AddDropdown("SelectedItem5", { Text = "Select Mythic Item(s)", Values = {"Mythical Chest"}, Multi = true, Searchable = true })
+GB_Dupe.Left:AddDropdown("SelectedItem6", { Text = "Select Secret Item(s)", Values = {"Secret Chest","Aura Crate","Cosmetic Crate"}, Multi = true, Searchable = true })
 
 GB_Dupe.Left:AddButton("Dupe Items", function()
     DupeItems()
 end)
 
 GB_Dupe.Right:AddLabel(
-"- ⚠️ The script <font color='#00FF00'>allows only up to 3 sessions of duplications</font> <font color='##FF0000'>(to prevent excessive item generation)</font>.\n\n" ..
-"- ⚠️ Currently, only <font color='#00FF00'>Aura Crates, Cosmetic Crates, and Clan Rerolls</font> can be duplicated to avoid data overload.\n\n" ..
-"- 🔒 Duplication is only available if you have at least  <font color='#00FF00'>50</font> crates or <font color='#00FF00'>50,000 Clan Rerolls</font> <font color='##FF0000'>(this helps prevent new players from abusing the system and affecting the Sailor Piece economy)</font>.\n\n" ..
-"- 🔒 Newly created accounts are <font color='##FF0000'>restricted from using the duplication feature to prevent abuse and spam</font>.\n\n" ..
-"- ⭐ Only high-level players <font color='#00FF00'>(Level 10,000 and above)</font> can access the duplication feature.",
-true
-)
+    "- ⚠️ The script <font color='#00FF00'>allows only up to 3 sessions of duplications</font> <font color='#FF0000'>(to prevent excessive item generation)</font>.\n\n" ..
+    "- ⚠️ Currently, only <font color='#00FF00'>Aura Crates, Cosmetic Crates, and Clan Rerolls</font> can be duplicated.\n\n" ..
+    "- 🔒 Duplication is only available if you have at least <font color='#00FF00'>50</font> crates or <font color='#00FF00'>50,000 Clan Rerolls</font>.\n\n" ..
+    "- 🔒 Newly created accounts are <font color='#FF0000'>restricted</font> from using this feature.\n\n" ..
+    "- ⭐ Only high-level players <font color='#00FF00'>(Level 10,000 and above)</font> can access duplication.",
+true)
 
 Tabs.Dupe:UpdateWarningBox({
     Title = "⚠️ WARNING ⚠️",
-    Text = "CAREFULLY READ THE INSTRUCTIONS ON THE RIGHT SIDE TAB",
+    Text = "CAREFULLY READ THE INSTRUCTIONS ON THE RIGHT SIDE",
     IsNormal = false,
     Visible = true,
     LockSize = true,
@@ -405,16 +215,12 @@ MenuGroup:AddToggle("AutoShowUI", { Text = "Auto Show UI", Default = true })
 MenuGroup:AddToggle("KeybindMenuOpen", { 
     Text = "Open Keybind Menu", 
     Default = true, 
-    Callback = function(v) 
-        Library.KeybindFrame.Visible = v 
-    end 
+    Callback = function(v) Library.KeybindFrame.Visible = v end 
 })
 MenuGroup:AddToggle("ShowCustomCursor", { 
     Text = "Custom Cursor", 
     Default = false, 
-    Callback = function(v) 
-        Library.ShowCustomCursor = v 
-    end 
+    Callback = function(v) Library.ShowCustomCursor = v end 
 })
 
 MenuGroup:AddDivider()
